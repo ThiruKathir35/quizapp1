@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Finished</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Quiz Completed! 🎉</h2>
+    <p id="finalScore"></p>
+    <button id="retryBtn">Retry Quiz</button>
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <script>
+    // Get logged in user
+    const loggedInUser = localStorage.getItem("loggedInUser");
+    if(!loggedInUser) window.location.href = "login.html";
+
+    const user = JSON.parse(localStorage.getItem(loggedInUser));
+    
+    // Show final score
+    document.getElementById("finalScore").textContent = `Your Score: ${user.score}`;
+
+    // Retry quiz button
+    document.getElementById("retryBtn").addEventListener("click", () => {
+      user.score = 0; // Reset score
+      localStorage.setItem(loggedInUser, JSON.stringify(user));
+      window.location.href = "index.html"; // Back to quiz
+    });
+
+    // Logout button
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>
