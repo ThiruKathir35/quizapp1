@@ -1,6 +1,11 @@
+/* ============================================
+   QUIZMASTER PRO - Design System
+   Modern Ed-Tech UI
+   ============================================ */
+
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
-
+/* ── CSS Variables ── */
 :root {
   --bg-deep:       #0a0d14;
   --bg-card:       #111622;
@@ -836,6 +841,83 @@ body::before {
   transition: var(--transition);
 }
 .nav-link:hover { color: var(--text-primary); background: var(--bg-card); }
+
+/* ── Navbar Auth Slots ── */
+.nav-auth-slot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Guest slot */
+.nav-cta {
+  width: auto !important;
+  padding: 7px 16px !important;
+  font-size: 0.82rem !important;
+}
+
+/* User slot */
+.nav-user-slot { gap: 10px; }
+
+.nav-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px var(--bg-deep), 0 0 0 3.5px var(--accent);
+  cursor: default;
+  user-select: none;
+  letter-spacing: 0;
+  font-family: var(--font-main);
+}
+
+.nav-username {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  max-width: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-secondary);
+  font-family: var(--font-main);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-logout:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: rgba(245, 101, 101, 0.08);
+}
+
+/* Hide username text on very small screens */
+@media (max-width: 480px) {
+  .nav-username { display: none; }
+  .btn-logout span { display: none; }
+  .btn-logout { padding: 7px 10px; }
+}
 
 /* ── Animations ── */
 @keyframes fadeSlideUp {

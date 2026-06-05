@@ -1,4 +1,5 @@
-
+// register.js — QuizMaster Pro
+// Logic preserved; UI helpers added for new design system
 
 function register() {
   const username = document.getElementById('username').value.trim();
@@ -40,8 +41,9 @@ function register() {
   existing[username] = { password };
   localStorage.setItem('qm_users', JSON.stringify(existing));
 
-  // Set session
+  // Set session (both storages so navbar.js always finds it)
   sessionStorage.setItem('qm_user', username);
+  localStorage.setItem('qm_user', username);
 
   // Success feedback then redirect
   showAlert('Account created! Redirecting…', 'success');

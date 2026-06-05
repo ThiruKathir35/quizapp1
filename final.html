@@ -18,6 +18,18 @@
   </style>
 </head>
 <body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <div class="brand-icon" style="width:32px;height:32px;font-size:16px;">🎯</div>
+      <span class="brand-name" style="font-size:.9rem;">Quiz<span>Master</span> Pro</span>
+    </div>
+    <div class="nav-right">
+      <!-- Auth slot injected by navbar.js -->
+    </div>
+  </nav>
+
   <div class="page-wrapper">
     <div class="container" style="max-width:520px;">
 
@@ -77,6 +89,7 @@
     </div>
   </div>
 
+  <script src="navbar.js"></script>
   <script src="quiz.js"></script>
   <script>
     // Performance thresholds
@@ -161,4 +174,4 @@
     });
   </script>
 </body>
-</html> 
+</html>

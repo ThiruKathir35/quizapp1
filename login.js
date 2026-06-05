@@ -1,3 +1,5 @@
+// login.js — QuizMaster Pro
+// Logic preserved; UI helpers added for new design system
 
 function login() {
   const username = document.getElementById('username').value.trim();
@@ -22,8 +24,9 @@ function login() {
     return;
   }
 
-  // Set session
+  // Set session (both storages so navbar.js always finds it)
   sessionStorage.setItem('qm_user', username);
+  localStorage.setItem('qm_user', username);
 
   // Success
   showAlert('Welcome back! Redirecting…', 'success');
