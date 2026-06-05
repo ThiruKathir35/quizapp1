@@ -1,41 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz Finished</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Result — QuizMaster Pro</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+  <style>
+    .score-number { animation: popIn 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.3s both; }
+    .result-icon-wrap { animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .stats-grid .stat-box { animation: fadeSlideUp 0.5s ease both; }
+    .stats-grid .stat-box:nth-child(1) { animation-delay: 0.4s; }
+    .stats-grid .stat-box:nth-child(2) { animation-delay: 0.5s; }
+    .stats-grid .stat-box:nth-child(3) { animation-delay: 0.6s; }
+    .result-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .result-actions .btn { width: auto; min-width: 160px; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Quiz Completed! 🎉</h2>
-    <p id="finalScore"></p>
-    <button id="retryBtn">Retry Quiz</button>
-    <button id="logoutBtn">Logout</button>
+  <div class="page-wrapper">
+    <div class="container" style="max-width:520px;">
+
+      <div class="card result-card">
+
+        <!-- Brand -->
+        <div class="brand" style="justify-content:center;margin-bottom:28px;">
+          <div class="brand-icon">🎯</div>
+          <span class="brand-name">Quiz<span>Master</span> Pro</span>
+        </div>
+
+        <!-- Result Icon -->
+        <div class="result-icon-wrap" id="result-icon">🏆</div>
+
+        <!-- Performance Label -->
+        <div class="result-label" id="perf-label">EXCELLENT</div>
+
+        <!-- Score Display -->
+        <div class="score-display">
+          <span class="score-number" id="score-number">0</span>
+          <span class="score-denom" id="score-denom">/ 10</span>
+        </div>
+        <div class="score-percent" id="score-percent">0% accuracy</div>
+
+        <!-- Title & Subtitle -->
+        <h2 class="result-title" id="result-title">Outstanding!</h2>
+        <p class="result-subtitle" id="result-subtitle">You nailed it. Keep pushing the limits.</p>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-val green" id="stat-correct">—</div>
+            <div class="stat-label">Correct</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val red" id="stat-wrong">—</div>
+            <div class="stat-label">Wrong</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val blue" id="stat-skipped">—</div>
+            <div class="stat-label">Skipped</div>
+          </div>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="result-actions">
+          <button class="btn btn-primary btn-lg" onclick="restartQuiz()">
+            🔄 Restart Quiz
+          </button>
+          <a href="index.html" class="btn btn-secondary btn-lg">
+            ← Home
+          </a>
+        </div>
+
+      </div>
+
+    </div>
   </div>
 
+  <script src="quiz.js"></script>
   <script>
-    // Get logged in user
-    const loggedInUser = localStorage.getItem("loggedInUser");
-    if(!loggedInUser) window.location.href = "login.html";
+    // Performance thresholds
+    const PERFORMANCES = [
+      {
+        min: 90, label: 'EXCELLENT', icon: '🏆',
+        title: 'Outstanding!', subtitle: 'You absolutely crushed it. Placement-ready!',
+        iconClass: 'excellent'
+      },
+      {
+        min: 70, label: 'GREAT JOB', icon: '🎉',
+        title: 'Great work!', subtitle: 'Solid performance. A little more practice and you\'re set.',
+        iconClass: 'good'
+      },
+      {
+        min: 50, label: 'GOOD EFFORT', icon: '💪',
+        title: 'Keep going!', subtitle: 'You\'re on the right track. Review the weak areas.',
+        iconClass: 'avg'
+      },
+      {
+        min: 0, label: 'NEEDS WORK', icon: '📚',
+        title: 'Don\'t give up!', subtitle: 'Every expert was once a beginner. Review and retry.',
+        iconClass: 'poor'
+      }
+    ];
 
-    const user = JSON.parse(localStorage.getItem(loggedInUser));
-    
-    // Show final score
-    document.getElementById("finalScore").textContent = `Your Score: ${user.score}`;
+    function animateCount(el, target, duration = 1200) {
+      let start = 0;
+      const step = Math.ceil(target / (duration / 16));
+      const tick = () => {
+        start = Math.min(start + step, target);
+        el.textContent = start;
+        if (start < target) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
 
-    // Retry quiz button
-    document.getElementById("retryBtn").addEventListener("click", () => {
-      user.score = 0; // Reset score
-      localStorage.setItem(loggedInUser, JSON.stringify(user));
-      window.location.href = "index.html"; // Back to quiz
-    });
+    function renderResult(score, total, correct, wrong, skipped) {
+      const pct = Math.round((score / total) * 100);
+      const perf = PERFORMANCES.find(p => pct >= p.min);
 
-    // Logout button
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      localStorage.removeItem("loggedInUser");
-      window.location.href = "login.html";
+      // Icon
+      const iconWrap = document.getElementById('result-icon');
+      iconWrap.textContent = perf.icon;
+      iconWrap.className = `result-icon-wrap ${perf.iconClass}`;
+
+      // Labels
+      document.getElementById('perf-label').textContent = perf.label;
+      document.getElementById('result-title').textContent = perf.title;
+      document.getElementById('result-subtitle').textContent = perf.subtitle;
+      document.getElementById('score-denom').textContent = `/ ${total}`;
+      document.getElementById('score-percent').textContent = `${pct}% accuracy`;
+
+      // Animated score
+      setTimeout(() => animateCount(document.getElementById('score-number'), score), 300);
+
+      // Stats
+      document.getElementById('stat-correct').textContent = correct ?? score;
+      document.getElementById('stat-wrong').textContent   = wrong ?? (total - score);
+      document.getElementById('stat-skipped').textContent = skipped ?? 0;
+    }
+
+    function restartQuiz() {
+      if (typeof quizRestart === 'function') {
+        quizRestart();
+      } else {
+        window.location.href = 'quiz.html';
+      }
+    }
+
+    // ── Init ──
+    document.addEventListener('DOMContentLoaded', () => {
+      // Try to get result from quiz.js / sessionStorage / URL params
+      const params = new URLSearchParams(window.location.search);
+      const score   = parseInt(params.get('score')   ?? sessionStorage.getItem('qm_score')   ?? 7);
+      const total   = parseInt(params.get('total')   ?? sessionStorage.getItem('qm_total')   ?? 10);
+      const correct = parseInt(params.get('correct') ?? sessionStorage.getItem('qm_correct') ?? 7);
+      const wrong   = parseInt(params.get('wrong')   ?? sessionStorage.getItem('qm_wrong')   ?? 2);
+      const skipped = parseInt(params.get('skipped') ?? sessionStorage.getItem('qm_skipped') ?? 1);
+
+      renderResult(score, total, correct, wrong, skipped);
     });
   </script>
 </body>
-</html>
+</html> 

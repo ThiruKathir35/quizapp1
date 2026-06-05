@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz — QuizMaster Pro</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <div class="brand-icon" style="width:32px;height:32px;font-size:16px;">🎯</div>
+      <span class="brand-name" style="font-size:.9rem;">Quiz<span>Master</span> Pro</span>
+    </div>
+    <div class="nav-right">
+      <div class="score-chip" id="nav-score">
+        <span>⭐</span> <span id="nav-score-val">0</span> pts
+      </div>
+      <a href="index.html" class="nav-link">← Exit</a>
+    </div>
+  </nav>
+
+  <!-- Quiz Area -->
+  <div class="page-wrapper" style="padding-top:0; align-items:flex-start;">
+    <div class="quiz-container" style="padding: 32px 24px 60px;">
+
+      <!-- Header row -->
+      <div class="quiz-header">
+        <div class="quiz-meta">
+          <div class="quiz-badge">
+            <span class="dot"></span>
+            <span id="q-label">Question 1</span>
+          </div>
+        </div>
+        <div class="timer-wrap" id="timer-wrap">
+          <span class="timer-icon">⏱</span>
+          <span id="timer-display">00:30</span>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-wrap">
+        <div class="progress-labels">
+          <span id="progress-text">Progress</span>
+          <span id="progress-fraction">0 / 10</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Question -->
+      <div class="question-card" id="question-card">
+        <div class="question-number" id="question-number">QUESTION 01</div>
+        <div class="question-text" id="question-text">Loading question…</div>
+      </div>
+
+      <!-- Options -->
+      <div class="options-grid" id="options-grid">
+        <!-- Injected by JS -->
+      </div>
+
+      <!-- Actions -->
+      <div class="quiz-actions">
+        <button class="btn btn-secondary" id="skip-btn" onclick="skipQuestion()" style="width:auto;padding:12px 24px;">
+          Skip
+        </button>
+        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" style="width:auto;padding:12px 24px;" disabled>
+          Next →
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="quiz.js"></script>
+  <script>
+    // ── UI BRIDGE ──
+    // This file handles the visual layer. quiz.js provides the data/logic.
+    // Adapt this bridge to match your existing quiz.js exports.
+
+    const LETTERS = ['A', 'B', 'C', 'D'];
+    let currentAnswer = null;
+    let answered = false;
+    let timerInterval = null;
+    let timeLeft = 30;
+    const TIMER_SECONDS = 30;
+
+    function renderQuestion(questionObj, index, total) {
+      answered = false;
+      currentAnswer = null;
+      document.getElementById('next-btn').disabled = true;
+
+      // Header / progress
+      document.getElementById('q-label').textContent = `Question ${index + 1}`;
+      document.getElementById('question-number').textContent = `QUESTION ${String(index + 1).padStart(2, '0')}`;
+      document.getElementById('question-text').textContent = questionObj.question;
+      document.getElementById('progress-fraction').textContent = `${index + 1} / ${total}`;
+      document.getElementById('progress-fill').style.width = `${((index + 1) / total) * 100}%`;
+
+      // Re-animate question card
+      const card = document.getElementById('question-card');
+      card.style.animation = 'none';
+      card.offsetHeight; // reflow
+      card.style.animation = '';
+
+      // Options
+      const grid = document.getElementById('options-grid');
+      grid.innerHTML = '';
+      questionObj.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.dataset.index = i;
+        btn.innerHTML = `
+          <span class="option-letter">${LETTERS[i]}</span>
+          <span class="option-text">${opt}</span>
+        `;
+        btn.addEventListener('click', () => selectOption(btn, i, questionObj.correct));
+        grid.appendChild(btn);
+      });
+
+      // Timer
+      resetTimer();
+    }
+
+    function selectOption(btn, idx, correctIdx) {
+      if (answered) return;
+      answered = true;
+      currentAnswer = idx;
+      clearInterval(timerInterval);
+
+      document.querySelectorAll('.option-btn').forEach(b => {
+        b.disabled = true;
+        const i = parseInt(b.dataset.index);
+        if (i === correctIdx) b.classList.add('correct');
+        if (i === idx && idx !== correctIdx) b.classList.add('wrong');
+        if (i === idx) b.classList.add('selected');
+      });
+
+      document.getElementById('next-btn').disabled = false;
+
+      // Update score (call your quiz.js function here)
+      if (idx === correctIdx) {
+        const scoreEl = document.getElementById('nav-score-val');
+        scoreEl.textContent = parseInt(scoreEl.textContent) + 10;
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timeLeft = TIMER_SECONDS;
+      updateTimerDisplay();
+      const wrap = document.getElementById('timer-wrap');
+      wrap.className = 'timer-wrap';
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 10) wrap.className = 'timer-wrap warning';
+        if (timeLeft <= 5)  wrap.className = 'timer-wrap danger';
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          if (!answered) autoTimeout();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const m = Math.floor(timeLeft / 60);
+      const s = timeLeft % 60;
+      document.getElementById('timer-display').textContent =
+        `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+
+    function autoTimeout() {
+      answered = true;
+      document.querySelectorAll('.option-btn').forEach(b => { b.disabled = true; });
+      document.getElementById('next-btn').disabled = false;
+    }
+
+    function skipQuestion() {
+      clearInterval(timerInterval);
+      nextQuestion();
+    }
+
+    // ── Hook into quiz.js ──
+    // Replace the body of nextQuestion() with your own logic call.
+    // The function below is a stub; wire it to your quiz.js nextQ() or equivalent.
+    function nextQuestion() {
+      if (typeof quizNextQuestion === 'function') {
+        quizNextQuestion(currentAnswer);
+      } else {
+        // Stub demo: reload same question
+        console.warn('Connect nextQuestion() to your quiz.js logic.');
+      }
+    }
+
+    // ── Init ──
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof quizInit === 'function') {
+        quizInit(renderQuestion);
+      } else {
+        // Demo fallback
+        renderQuestion({
+          question: 'Which data structure uses LIFO (Last In, First Out) principle?',
+          options: ['Queue', 'Stack', 'Linked List', 'Tree'],
+          correct: 1
+        }, 0, 10);
+      }
+    });
+  </script>
+</body>
+</html>

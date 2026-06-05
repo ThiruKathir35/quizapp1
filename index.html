@@ -1,34 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CSE Quiz</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuizMaster Pro — CSE Quiz Platform</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
 </head>
 <body>
-  <div class="quiz-container">
-    <header>
-      <h2>Computer Science Quiz</h2>
-      <div class="user-info">
-        <span id="userInfo" class="top-right"></span>
-      </div>
-    </header>
 
-    <div id="quizCard">
-      <div class="timer-bar">
-        <div id="timerProgress"></div>
-      </div>
-      <p id="question" class="question-text"></p>
-      <div id="options" class="options"></div>
-      <button id="nextBtn" class="next-btn">Next Question</button>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <div class="brand-icon" style="width:32px;height:32px;font-size:16px;">🎯</div>
+      <span class="brand-name" style="font-size:.9rem;">Quiz<span>Master</span> Pro</span>
     </div>
+    <div class="nav-right">
+      <a href="login.html" class="nav-link">Sign in</a>
+      <a href="register.html" class="btn btn-primary" style="width:auto;padding:8px 18px;font-size:.82rem;">Get Started</a>
+    </div>
+  </nav>
 
-    <footer>
-      <p id="score" class="score-display"></p>
-    </footer>
+  <!-- Main -->
+  <div class="page-wrapper" style="padding-top:0; align-items:flex-start;">
+    <div class="quiz-container" style="max-width:860px; padding: 0 24px 60px;">
+
+      <!-- Hero -->
+      <div class="hero-section">
+        <div class="hero-eyebrow">
+          <span>⚡</span> CSE QUIZ PLATFORM
+        </div>
+        <h1 class="hero-title">
+          Test Your<br>
+          <span class="gradient-text">Computer Science</span><br>
+          Knowledge
+        </h1>
+        <p class="hero-desc">
+          Challenge yourself with curated questions on DSA, OS, DBMS, Networks & more.
+          Track progress, beat your scores, ace your placements.
+        </p>
+        <div class="hero-actions">
+          <a href="#topics" class="btn btn-primary btn-lg" style="width:auto;">
+            Start Quiz →
+          </a>
+          <a href="login.html" class="btn btn-secondary btn-lg" style="width:auto;">
+            Sign In
+          </a>
+        </div>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="stats-grid" style="max-width:500px;margin:0 auto 40px;" id="stats-bar">
+        <div class="stat-box">
+          <div class="stat-val blue">200+</div>
+          <div class="stat-label">Questions</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val green">8</div>
+          <div class="stat-label">Topics</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" style="color:var(--warn)">Free</div>
+          <div class="stat-label">Always</div>
+        </div>
+      </div>
+
+      <!-- Topics -->
+      <div class="topics-section" id="topics">
+        <p class="section-label">📚 Choose a Topic</p>
+        <div class="topics-grid" id="topics-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <script src="quiz.js"></script>
+  <script>
+    const TOPICS = [
+      { emoji: '🧮', name: 'Data Structures', count: '30 questions', id: 'ds' },
+      { emoji: '🔁', name: 'Algorithms', count: '25 questions', id: 'algo' },
+      { emoji: '⚙️', name: 'Operating Systems', count: '28 questions', id: 'os' },
+      { emoji: '🗃️', name: 'DBMS', count: '22 questions', id: 'dbms' },
+      { emoji: '🌐', name: 'Computer Networks', count: '20 questions', id: 'cn' },
+      { emoji: '💻', name: 'C / C++', count: '24 questions', id: 'cpp' },
+      { emoji: '☕', name: 'Java OOP', count: '18 questions', id: 'java' },
+      { emoji: '🧠', name: 'Aptitude', count: '20 questions', id: 'apt' },
+    ];
+
+    const grid = document.getElementById('topics-grid');
+    TOPICS.forEach(t => {
+      const a = document.createElement('a');
+      a.className = 'topic-card';
+      a.href = `quiz.html?topic=${t.id}`;
+      a.innerHTML = `
+        <div class="topic-emoji">${t.emoji}</div>
+        <div class="topic-info">
+          <div class="topic-name">${t.name}</div>
+          <div class="topic-count">${t.count}</div>
+        </div>
+      `;
+      grid.appendChild(a);
+    });
+  </script>
 </body>
 </html>
